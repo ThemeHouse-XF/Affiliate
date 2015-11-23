@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="ThemeHouse_Affiliate" title="[⌂] Affiliates" version_string="1.0.0" version_id="1447261019" url="http://xf.themehouse.io" install_callback_class="ThemeHouse_Install" install_callback_method="install" uninstall_callback_class="ThemeHouse_Install" uninstall_callback_method="uninstall">
+  <admin_navigation>
+    <navigation navigation_id="th_affiliate" parent_navigation_id="setup" display_order="10000" link="" admin_permission_id="" debug_only="0" hide_no_children="0"/>
+    <navigation navigation_id="th_affiliate_withdrawal" parent_navigation_id="th_affiliate" display_order="5" link="affiliate/withdraw" admin_permission_id="" debug_only="0" hide_no_children="0"/>
+  </admin_navigation>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates>
+    <template title="th_user_upgrade_edit_affiliate"><![CDATA[<dl class="ctrlUnit">
+	<dt><label>{xen:phrase th_affiliate_points_affiliate}:</label></dt>
+	<dd>
+		<label for="ctrl_custom_affiliate_points"><input type="checkbox" name="custom_affiliate_points" id="ctrl_custom_affiliate_points" class="Disabler" {xen:if $upgrade.custom_affiliate_points, ' checked'}> {xen:phrase th_use_custom_value_affiliate}</label>
+		<ul id="ctrl_custom_affiliate_points_Disabler">
+			<li><xen:textbox name="affiliate_points" value="{$upgrade.affiliate_points}" /></li>
+		</ul>
+	</dd>
+</dl>]]></template>
+    <template title="th_withdraw_affiliate"><![CDATA[<xen:title>{xen:phrase th_pending_withdrawal_requests_affiliate}</xen:title>
+
+<xen:require css="filter_list.css" />
+<xen:require js="js/xenforo/filter_list.js" />
+
+<xen:if is="{$withdrawals}">
+
+	<xen:form action="{xen:adminlink add-ons/toggle}" class="section AutoValidator">
+	
+		<h2 class="subHeading">
+			<xen:include template="filter_list_controls" />
+			{xen:phrase th_pending_withdrawal_requests_affiliate}
+		</h2>
+	
+		<ol class="FilterList">
+			<xen:foreach loop="$withdrawals" key="$withdrawalId" value="$withdrawal">
+				<xen:listitem id="{$withdrawalId}"
+					label="{$withdrawal.username}"
+					snippet="{$withdrawal.amount}"
+					href="{xen:link conversations/add, '', 'to={$withdrawal.username}'}">
+					<xen:html>
+					<a href="{xen:adminlink affiliate/withdraw-complete, '', 'id={$withdrawalId}'}" class="secondaryContent">{xen:phrase th_completed_affiliate}</a>
+					</xen:html>
+				</xen:listitem>
+			</xen:foreach>
+		</ol>
+		
+	</xen:form>
+
+<xen:else />
+	<div class="noResults">{xen:phrase th_no_pending_withdrawal_requests_affiliate}</div>
+</xen:if>]]></template>
+  </admin_templates>
+  <admin_template_modifications>
+    <modification template="user_upgrade_edit" modification_key="th_user_upgrade_edit_affiliate" description="" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[/<xen:controlunit label="{xen:phrase cost}:">(.*?)<\/xen:controlunit>/s]]></find>
+      <replace><![CDATA[$0
+<xen:include template="th_user_upgrade_edit_affiliate" />]]></replace>
+    </modification>
+  </admin_template_modifications>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="controller_pre_dispatch" execute_order="10" callback_class="ThemeHouse_Listener_ControllerPreDispatch" callback_method="controllerPreDispatch" active="1" hint="" description=""/>
+    <listener event_id="file_health_check" execute_order="10" callback_class="ThemeHouse_Affiliate_Listener_FileHealthCheck" callback_method="fileHealthCheck" active="1" hint="" description=""/>
+    <listener event_id="init_dependencies" execute_order="10" callback_class="ThemeHouse_Listener_InitDependencies" callback_method="initDependencies" active="1" hint="" description=""/>
+    <listener event_id="load_class" execute_order="10" callback_class="ThemeHouse_Affiliate_Listener_LoadClass" callback_method="loadClassController" active="0" hint="XenForo_ControllerPublic_Register" description="XenForo_ControllerPublic_Register" compatibility_switch="1"/>
+    <listener event_id="load_class" execute_order="10" callback_class="ThemeHouse_Affiliate_Listener_LoadClass" callback_method="loadClassDataWriter" active="0" hint="XenForo_DataWriter_UserUpgrade" description="XenForo_DataWriter_UserUpgrade" compatibility_switch="1"/>
+    <listener event_id="load_class" execute_order="10" callback_class="ThemeHouse_Affiliate_Listener_LoadClass" callback_method="loadClassController" active="0" hint="XenForo_ControllerAdmin_UserUpgrade" description="XenForo_ControllerAdmin_UserUpgrade" compatibility_switch="1"/>
+    <listener event_id="load_class" execute_order="10" callback_class="ThemeHouse_Affiliate_Listener_LoadClass" callback_method="loadClassModel" active="0" hint="XenForo_Model_UserUpgrade" description="XenForo_Model_UserUpgrade" compatibility_switch="1"/>
+    <listener event_id="load_class" execute_order="10" callback_class="ThemeHouse_Affiliate_Listener_LoadClass" callback_method="loadClassDataWriter" active="0" hint="XenForo_DataWriter_User" description="XenForo_DataWriter_User" compatibility_switch="1"/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates>
+    <template title="th_affiliate_invitation">
+      <subject><![CDATA[{xen:phrase th_you_have_been_invited_to_x_affiliate, "boardTitle={$xenOptions.boardTitle}"}]]></subject>
+      <body_text><![CDATA[{xen:phrase th_invitation_email_text_affiliate,
+	"username={$username}",
+	"register_link={xen:link full:register, '', 'ref={$affiliate_code}'}",
+	"board_title={$xenOptions.boardTitle}"
+}]]></body_text>
+      <body_html><![CDATA[<p style="margin-top: 0">{xen:phrase th_invitation_email_html_affiliate,
+	"username={$username}",
+	"board_title={$xenOptions.boardTitle}"}</p>
+
+<h2 style="font-size: 18pt; font-weight: normal; margin: 10px 0"><a href="{xen:link full:register, '', 'ref={$affiliate_code}'}" style="color: #176093; text-decoration: none">{xen:phrase sign_up_now}</a></h2>]]></body_html>
+    </template>
+  </email_templates>
+  <email_template_modifications/>
+  <optiongroups>
+    <group group_id="th_affiliate" display_order="2000" debug_only="0"/>
+    <option option_id="th_affiliate_affiliatePointsPerUpgrade" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>0.00</default_value>
+      <edit_format_params/>
+      <sub_options/>
+      <relation group_id="th_affiliate" display_order="110"/>
+    </option>
+    <option option_id="th_affiliate_emailInvite" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params/>
+      <sub_options/>
+      <relation group_id="th_affiliate" display_order="10"/>
+    </option>
+    <option option_id="th_affiliate_enableAffiliatePoints" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value/>
+      <edit_format_params/>
+      <sub_options/>
+      <relation group_id="th_affiliate" display_order="105"/>
+    </option>
+    <option option_id="th_affiliate_minWithdraw" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>10.00</default_value>
+      <edit_format_params/>
+      <sub_options/>
+      <relation group_id="th_affiliate" display_order="110"/>
+    </option>
+    <option option_id="th_affiliate_singleUseInvitation" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params/>
+      <sub_options/>
+      <relation group_id="th_affiliate" display_order="5"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups>
+      <permission_group permission_group_id="thAffiliatePermissions"/>
+    </permission_groups>
+    <permissions>
+      <permission permission_group_id="thAffiliatePermissions" permission_id="accessAffiliateSystem" permission_type="flag" default_value="unset" interface_group_id="thAffiliatePermissions" display_order="5"/>
+    </permissions>
+    <interface_groups>
+      <interface_group interface_group_id="thAffiliatePermissions" display_order="2000"/>
+    </interface_groups>
+  </permissions>
+  <phrases>
+    <phrase title="admin_navigation_th_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Affiliate]]></phrase>
+    <phrase title="admin_navigation_th_affiliate_withdrawal" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Pending Withdrawal Requests]]></phrase>
+    <phrase title="option_group_th_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[[⌂] Affiliates]]></phrase>
+    <phrase title="option_group_th_affiliate_description" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Options for the [⌂] Affiliates add-on.]]></phrase>
+    <phrase title="option_th_affiliate_affiliatePointsPerUpgrade" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Affiliate points to earn per upgrade]]></phrase>
+    <phrase title="option_th_affiliate_affiliatePointsPerUpgrade_explain" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[The number of affiliate points to earn when an invited user purchases a user upgrade. This can either be a fixed value (eg: 12.00), or a percent (eg 5%). If you set a value for a specific upgrade it will take precedence over this value.]]></phrase>
+    <phrase title="option_th_affiliate_emailInvite" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Enable email invites]]></phrase>
+    <phrase title="option_th_affiliate_emailInvite_explain" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[If this is enabled users will be able to invite other users via email]]></phrase>
+    <phrase title="option_th_affiliate_enableAffiliatePoints" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Enable affiliate points]]></phrase>
+    <phrase title="option_th_affiliate_enableAffiliatePoints_explain" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Should users earn points when a user they have invited purchases a user upgrade?]]></phrase>
+    <phrase title="option_th_affiliate_minWithdraw" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Minimum amount to withdraw]]></phrase>
+    <phrase title="option_th_affiliate_minWithdraw_explain" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[]]></phrase>
+    <phrase title="option_th_affiliate_singleUseInvitation" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Single use invitation links]]></phrase>
+    <phrase title="option_th_affiliate_singleUseInvitation_explain" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[If this option is enabled each invitation code can only be used once. Email invitations must be enabled for this to work properly.]]></phrase>
+    <phrase title="permission_group_thAffiliatePermissions" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[[⌂] Affiliates Permissions]]></phrase>
+    <phrase title="permission_interface_thAffiliatePermissions" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[[⌂] Affiliates Permissions]]></phrase>
+    <phrase title="permission_thAffiliatePermissions_accessAffiliateSystem" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Access affiliate system]]></phrase>
+    <phrase title="th_affiliates" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Affiliates]]></phrase>
+    <phrase title="th_affiliate_link_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Affiliate Link]]></phrase>
+    <phrase title="th_affiliate_panel_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Affiliate Panel]]></phrase>
+    <phrase title="th_affiliate_points_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Affiliate Points]]></phrase>
+    <phrase title="th_affiliate_statistics_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Affiliate Statistics]]></phrase>
+    <phrase title="th_amount_to_withdraw_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Amount to Withdraw]]></phrase>
+    <phrase title="th_completed_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Completed]]></phrase>
+    <phrase title="th_invitation_email_html_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Hello, {username} has invited you to {board_title}]]></phrase>
+    <phrase title="th_invitation_email_text_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Hello,
+
+{username} has invited you to {board_title}.
+
+You can use the following link to register:
+----------------------------------------------------------------------
+{register_link}
+----------------------------------------------------------------------]]></phrase>
+    <phrase title="th_invited_users_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Invited Users]]></phrase>
+    <phrase title="th_invite_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Invite]]></phrase>
+    <phrase title="th_invite_user_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Invite User]]></phrase>
+    <phrase title="th_no_pending_withdrawal_requests_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[There are no pending withdrawal requests]]></phrase>
+    <phrase title="th_pending_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Pending]]></phrase>
+    <phrase title="th_pending_withdrawal_requests_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Pending Withdrawal Requests]]></phrase>
+    <phrase title="th_request_withdrawal_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Request Withdrawal]]></phrase>
+    <phrase title="th_this_email_is_already_registered_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[This email is already registered.]]></phrase>
+    <phrase title="th_use_custom_value_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Use custom value]]></phrase>
+    <phrase title="th_your_withdrawal_request_has_been_submitted_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[Your withdrawal request has been submitted and someone will contact you soon.]]></phrase>
+    <phrase title="th_you_do_not_have_enough_points_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[You do not have enough affiliate points.]]></phrase>
+    <phrase title="th_you_have_already_invited_this_user_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[You have already invited this user.]]></phrase>
+    <phrase title="th_you_have_been_invited_to_x_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[You have been invited to {boardTitle}]]></phrase>
+    <phrase title="th_you_have_not_invited_any_users_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[You have not invited any users yet.]]></phrase>
+    <phrase title="th_you_must_withdraw_at_least_x_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[You must withdraw at least {amount} affiliate points.]]></phrase>
+  </phrases>
+  <route_prefixes>
+    <route_type type="admin">
+      <prefix original_prefix="affiliate" class="ThemeHouse_Affiliate_Route_PrefixAdmin_Affiliate" build_link="none"/>
+    </route_type>
+    <route_type type="public">
+      <prefix original_prefix="affiliate" class="ThemeHouse_Affiliate_Route_Prefix_Affiliate" build_link="none"/>
+    </route_type>
+  </route_prefixes>
+  <style_properties/>
+  <templates>
+    <template title="th_index_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[<xen:title>{xen:phrase th_affiliate_panel_affiliate}</xen:title>
+<xen:require css="th_index_affiliate.css" />
+
+<xen:if is="{$showAffiliatePoints}">
+<xen:topctrl>
+	<a href="{xen:link affiliate/withdraw}" class="callToAction"><span>{xen:phrase th_request_withdrawal_affiliate}</span></a>
+</xen:topctrl>
+</xen:if>
+
+<xen:if is="!{$xenOptions.th_affiliate_singleUseInvitation}">
+<div class="secondaryContent">
+	<div class="affiliateLinkBox">
+		<strong>{xen:phrase th_affiliate_link_affiliate}:</strong>
+		<div class="primaryContent"><span class="" id="AffiliateLink" data-clipboard-text="{xen:link full:register, '', 'ref={$visitor.affiliate_code}'}">{xen:link full:register, '', 'ref={$visitor.affiliate_code}'}</span></div>
+	</div>
+</div>
+</xen:if>
+
+<form method="post" class="xenForm AutoValidator"
+	action="{xen:link 'affiliate/invite'}"
+	data-redirect="On">
+
+	<xen:if is="{$xenOptions.th_affiliate_emailInvite}">
+		<dl class="ctrlUnit">
+			<dt><label for="ctrl_users">{xen:phrase th_invite_affiliate}:</label></dt>
+			<dd>
+				<input type="text" name="email" placeholder="{xen:phrase email}..." class="textCtrl" id="ctrl_email" autofocus="autofocus" />
+			</dd>
+		</dl>
+	
+		<dl class="ctrlUnit submitUnit">
+			<dt></dt>
+			<dd><input type="submit" name="save" value="{xen:phrase th_invite_user_affiliate}" accesskey="s" class="button primary" /></dd>
+		</dl>
+	</xen:if>
+
+	<xen:if is="{$invitations}">
+		<ul class="FollowList memberList">
+			<xen:foreach loop="$invitations" value="$user">
+				<xen:include template="th_member_list_item_affiliate">
+					<xen:set var="$id">user_list_{$user.user_id}</xen:set>
+					<xen:set var="$extraTemplate">
+						<xen:if is="!{$user.user_id}">
+							{xen:phrase th_pending_affiliate}...
+						<xen:else />
+							{xen:helper datetimehtml, $user.register_date}
+						</xen:if>
+					</xen:set>
+				</xen:include>
+			</xen:foreach>
+		</ul>
+	<xen:else />
+		<p>{xen:phrase th_you_have_not_invited_any_users_affiliate}
+	</xen:if>
+
+	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+</form>
+
+<xen:sidebar>
+	<div class="section affiliateStats">
+		<div class="secondaryContent">
+			<h3>{xen:phrase th_affiliate_statistics_affiliate}</h3>
+			
+			<dl class="pairsJustified">
+				<dt>{xen:phrase th_invited_users_affiliate}:</dt>
+				<dd>{xen:number $visitor.invited_users}</dd>
+			</dl>
+			
+			<xen:if is="{$showAffiliatePoints}">
+				<dl class="pairsJustified">
+					<dt>{xen:phrase th_affiliate_points_affiliate}:</dt>
+					<dd>{xen:number $visitor.affiliate_points, 2}</dd>
+				</dl>
+			</xen:if>
+		</div>
+	</div>
+</xen:sidebar>]]></template>
+    <template title="th_member_list_item_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[<xen:require css="xenforo_member_list_item.css" />
+
+<li class="primaryContent memberListItem{xen:if $extended, ' extended'}"{xen:if $id, ' id="{$id}"'}>
+
+	<xen:avatar user="$user" size="s" class="{xen:if $noOverlay, 'NoOverlay'}" />
+
+	<xen:if is="{$extraTemplate}"><div class="extra">{xen:raw $extraTemplate}</div></xen:if>
+
+	<div class="member">
+	
+		<xen:if is="{$user.user_id}">
+		
+			<h3 class="username"><xen:username user="$user" rich="true" class="StatusTooltip{xen:if $noOverlay, ' NoOverlay'}" title="{xen:helper snippet, $user.status, 0, {xen:array 'stripPlainTag=1'}}" /></h3>
+			
+			<div class="userInfo">
+				<div class="userBlurb dimmed">{xen:helper userBlurb, $user}</div>
+				<dl class="userStats pairsInline">
+					<dt title="{xen:phrase total_messages_posted_by_x, 'name={$user.username}'}">{xen:phrase messages}:</dt> <dd>{xen:number $user.message_count}</dd>
+					<dt title="{xen:phrase number_of_times_something_posted_by_x_has_been_liked, 'name={$user.username}'}">{xen:phrase likes_received}:</dt> <dd>{xen:number $user.like_count}</dd>
+					<xen:if is="{$xenOptions.enableTrophies}">
+						<dt>{xen:phrase trophy_points}:</dt> <dd title="{xen:phrase trophy_points}">{xen:number $user.trophy_points}</dd>
+					</xen:if>
+				</dl>
+			</div>
+			
+		<xen:else />
+			<h3 class="username guest dimmed">{$user.invited_email}</h3>
+		</xen:if>
+		
+		<xen:if hascontent="true">
+			<div class="contentInfo"><xen:contentcheck>{xen:raw $contentTemplate}</xen:contentcheck></div>
+		</xen:if>
+		
+	</div>
+	
+</li>]]></template>
+    <template title="th_withdraw_affiliate" version_id="1442607105" version_string="1.0.0 Development"><![CDATA[<xen:title>{xen:phrase th_request_withdrawal_affiliate}</xen:title>
+
+<xen:navigation>
+	<xen:breadcrumb href="{xen:link affiliate}">{xen:phrase th_affiliate_panel_affiliate}</xen:breadcrumb>
+</xen:navigation>
+
+<form method="post" action="{xen:link affiliate/withdraw}" class="xenForm formOverlay AutoValidator" data-redirect="On">
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_amount">{xen:phrase th_amount_to_withdraw_affiliate}:</label></dt>
+		<dd>
+			<input type="text" name="amount" id="ctrl_amount" class="textCtrl" value="{$visitor.affiliate_points}">
+		</dd>
+	</dl>
+	
+	<dl class="ctrlUnit submitUnit">
+		<dt></dt>
+		<dd>
+			<input type="submit" class="button primary" value="{xen:phrase th_request_withdrawal_affiliate}">
+		</dd>
+	</dl>
+	
+	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}">
+	<input type="hidden" name="_xfConfirm" value="1">
+</form>]]></template>
+  </templates>
+  <public_template_modifications>
+    <modification template="footer" modification_key="th_copyrightNotice_affiliate" description="Copyright notice for [⌂] Affiliates" execution_order="1" enabled="1" action="callback">
+      <find><![CDATA[/{xen:phrase (?:xenforo|extra)_copyright}/]]></find>
+      <replace><![CDATA[ThemeHouse_Listener_InitDependencies::copyrightNotice]]></replace>
+    </modification>
+  </public_template_modifications>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>
